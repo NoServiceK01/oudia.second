@@ -19,7 +19,7 @@ h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.02em}
 #sb .row{flex-wrap:wrap}
 button,select,.btn,input[type=time]{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;min-height:40px;padding:0 12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px}
 select{padding-right:6px}
-.ib{width:40px;padding:0;font-size:18px}
+.ib{width:40px;padding:0}
 .pri,.seg button.on{background:var(--acc);color:var(--accf);border-color:var(--acc)}
 .seg{display:inline-flex;flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .seg button{flex:1;min-width:0;border:0;border-radius:0;min-height:38px;padding:0 4px;background:var(--bg);border-right:1px solid var(--line)}
@@ -40,7 +40,11 @@ main{padding:0 0 110px}
 input[type=time]{font-size:20px;font-weight:700;width:7.8em;font-variant-numeric:tabular-nums;cursor:text}
 .ic{display:inline-block;width:20px;height:20px;border-radius:5px;text-align:center;font-size:12px;font-weight:700;line-height:20px;vertical-align:-3px}
 input[type=checkbox]{width:24px;height:24px;accent-color:var(--acc)}
-svg{display:block;width:100%;height:auto;max-width:480px;margin:0 auto}
+#map{display:block;width:100%;height:auto;max-width:480px;margin:0 auto}
+svg{flex:none}
+.ib svg{width:20px;height:20px;display:block}
+#shp button{flex-direction:column;gap:2px;padding:6px 4px;min-height:64px;white-space:nowrap}
+#shp svg{width:26px;height:30px;display:block}
 .nm{font-size:17px;font-weight:700;fill:var(--ink)}
 .nm.sub{font-size:15px}
 #info{position:fixed;left:0;right:0;bottom:0;background:var(--band);border-top:1px solid var(--rule);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));z-index:5}
@@ -72,11 +76,11 @@ h3{margin:14px 0 4px;font-size:14px}
   <div class="wrap">
     <div class="top">
       <h1 id="ttl">列車位置表示</h1>
-      <span class="acts"><button class="ib" id="gear" aria-label="設定" title="設定">⚙</button><button class="ib" id="thm" aria-label="ライト/ダークを切り替え" title="ライト/ダーク">🌓</button><label class="btn" tabindex="0" title="ファイルを開く">開く<input id="file" type="file" accept=".oud2,.oud" hidden></label></span>
+      <span class="acts"><button class="ib" id="gear" aria-label="設定" title="設定"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="6.6"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M18.6 5.4l-1.5 1.5M6.9 17.1l-1.5 1.5"/></g></svg></button><button class="ib" id="thm" aria-label="ライト/ダークを切り替え" title="ライト/ダーク"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button><label class="btn" tabindex="0" title="ファイルを開く">開く<input id="file" type="file" accept=".oud2,.oud" hidden></label></span>
     </div>
     <div id="ctl" class="hide">
       <div class="row"><select id="dia" aria-label="ダイヤ" style="flex:1;min-width:0"></select><input id="tin" type="time" step="1" aria-label="時刻(直接入力)"></div>
-      <div class="row"><button id="play" class="ib pri" aria-label="再生・停止">⏸</button>
+      <div class="row"><button id="play" class="ib pri" aria-label="再生・停止"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M7 4h3.5v16H7zM13.5 4H17v16h-3.5z" fill="currentColor"/></svg></button>
         <div class="seg" id="spd" role="group" aria-label="進む速さ"><button data-v="1">×1</button><button data-v="10">×10</button><button data-v="30">×30</button><button data-v="60" class="on">×60</button><button data-v="300">×300</button></div>
         <button id="now">いま</button></div>
     </div>
@@ -177,14 +181,14 @@ function build(d){
       if(!e)return;const m=e.match(/^(\d)(?:;([^$]*))?/);if(!m)return;const ty=+m[1];if(ty!==1&&ty!==2)return;
       // 上り列車の時刻は駅順が逆(末尾が最初の駅)で記録されている
       const s=dir?n-1-j:j;let a=null,dd=null;
-      if(ty===1&&m[2]!=null){const p=m[2].split('/');a=tm(p[0]);dd=tm(p[1]);if(a==null)a=dd;if(dd==null)dd=a}
-      route.push({s,a,d:dd,tk:(e.match(/\$(\d+)/)||[])[1]});
+      if(m[2]!=null){const p=m[2].split('/');a=tm(p[0]);dd=tm(p[1]);if(a==null)a=dd;if(dd==null)dd=a}
+      route.push({s,a,d:dd,ps:ty===2,tk:(e.match(/\$(\d+)/)||[])[1]});
     });
     const si=[];route.forEach((x,i)=>{if(x.a!=null)si.push(i)});
-    if(si.length<2)continue;
+    const stp=si.filter(i=>!route[i].ps);if(stp.length<2)continue;
     let off=0,prev=-1;
     for(const i of si){const x=route[i];let a=x.a+off;if(a<prev){off+=86400;a+=86400}let dd=x.d+off;if(dd<a){off+=86400;dd+=86400}x.a=a;x.d=dd;prev=dd}
-    out.push({dir,ty:+r.Syubetsu||0,name:[r.Ressyabangou,r.Ressyamei].filter(Boolean).join(' '),route,si,t0:route[si[0]].a,t1:route[si[si.length-1]].d,id:out.length});
+    out.push({dir,ty:+r.Syubetsu||0,name:[r.Ressyabangou,r.Ressyamei].filter(Boolean).join(' '),route,si,fs:stp[0],ls:stp[stp.length-1],t0:route[si[0]].a,t1:route[si[si.length-1]].d,id:out.length});
   }
   return out;
 }
@@ -210,16 +214,17 @@ function along(pts,f,q){const ls=[];let L=0;for(let i=1;i<pts.length;i++){const 
 function where(tr,t){
   if(t<tr.t0||t>tr.t1)return null;const R=tr.route,si=tr.si;
   for(let k=0;k<si.length;k++){const x=R[si[k]];
-    if(t>=x.a&&t<=x.d)return{p:pp(x.s),at:x.s,tk:x.tk,k,sp:pp(x.s),stk:x.tk,ss:x.s};
+    if(t>=x.a&&t<=x.d){if(!x.ps)return{p:pp(x.s),at:x.s,tk:x.tk,k,sp:pp(x.s),stk:x.tk,ss:x.s,ta:x.a};
+      const nx=R[si[k+1]];return{p:pp(x.s),from:x.s,next:nx?nx.s:x.s,k,q:1,sp:null}}
     if(k+1<si.length){const y=R[si[k+1]];
       if(t>x.d&&t<y.a){const q=Math.min(3,4*(t-x.d)/(y.a-x.d)|0);
-        return{p:along(poly(R.slice(si[k],si[k+1]+1)),(q+.5)/4,q),from:x.s,next:y.s,k,q,sp:q===0?pp(x.s):q===3?pp(y.s):null,stk:q===0?x.tk:y.tk,ss:q===0?x.s:y.s}}}}
+        return{p:along(poly(R.slice(si[k],si[k+1]+1)),(q+.5)/4,q),from:x.s,next:y.s,k,q,sp:q===0&&!x.ps?pp(x.s):q===3&&!y.ps?pp(y.s):null,stk:q===0?x.tk:y.tk,ss:q===0?x.s:y.s,ta:q===0?x.a:y.a}}}}
   return null;
 }
 
 const ink=c=>{if(c[0]!=='#')return'var(--panel)';const v=parseInt(c.slice(1),16),r=v>>16,g=v>>8&255,b=v&255;return(r*299+g*587+b*114)/1000>150?'#111':'#fff'};
 // 各駅に停車する種別(ダイヤごと)
-function stopMap(d){const m=new Map();for(const tr of d.trains)for(const j of tr.si){const k=pk(tr.route[j].s);if(!m.has(k))m.set(k,new Set());m.get(k).add(tr.ty)}return m}
+function stopMap(d){const m=new Map();for(const tr of d.trains)for(const j of tr.si){if(tr.route[j].ps)continue;const k=pk(tr.route[j].s);if(!m.has(k))m.set(k,new Set());m.get(k).add(tr.ty)}return m}
 const stops=()=>{const d=M.dias[M.cur];return d.stops||(d.stops=stopMap(d))};
 function drawStops(){let h='';const m=stops();
   M.st.forEach((s,i)=>{const p=M.pos[i];if(p.copy)return;const x0=p.lane?X(p.lane)+82:12,y=Y(p.row)+5;
@@ -227,23 +232,32 @@ function drawStops(){let h='';const m=stops();
       h+=`<rect x="${x}" y="${y}" width="17" height="17" rx="4" fill="${ty.col}"/><text x="${x+8.5}" y="${y+13}" text-anchor="middle" font-size="11" font-weight="700" fill="${ink(ty.col)}">${ty.ini}</text>`})});
   $('#stp').innerHTML=h}
 const tcol=tr=>(M.types[tr.ty]||{col:'var(--mute)'}).col;
+const SHAPES=[['std','標準'],['pan','形A'],['rnd','形B']];
+let shape='std';try{const v=localStorage.getItem('shape');if(SHAPES.some(x=>x[0]===v))shape=v}catch(e){}
+// 列車アイコンの形。pan=パンタグラフ付き、rnd=丸みのある四角+足
+function shapeSvg(k,c,tc,ini){
+  const t=y=>ini?`<text y="${y}" text-anchor="middle" font-size="14" font-weight="700" fill="${tc}">${ini}</text>`:'';
+  if(k==='pan')return `<g transform="scale(.9)"><path d="M-9-17H9M-8.5-17v3M8.5-17v3M-4-16v5M4-16v5" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round"/><path d="M-7-12H7Q10-8 10-2V8Q10 14 6 14H-6Q-10 14-10 8V-2Q-10-8-7-12Z" fill="${c}"/><path d="M-6 14v3.5M6 14v3.5" stroke="${c}" stroke-width="3"/>${t(5)}</g>`;
+  if(k==='rnd')return `<g transform="scale(.9)"><path d="M-6-15H6Q11-15 11-8V9Q11 14 7 14H-7Q-11 14-11 9V-8Q-11-15-6-15Z" fill="${c}"/><path d="M-6.5 14v3.5M6.5 14v3.5" stroke="${c}" stroke-width="3"/>${t(4.5)}</g>`;
+  return `<rect x="-12" y="-13" width="24" height="26" rx="8" fill="${c}"/>${ini?`<text y="5.5" text-anchor="middle" font-size="15" font-weight="700" fill="${tc}">${ini}</text>`:''}`;
+}
 function icon(g){
   const tr=g.trs[0],c=tcol(tr),up=g.side<0,sel=g.trs.some(t=>selIds.has(t.id)),n=g.trs.length;
   const tri=up?'M0-25L7-16H-7Z':'M0 25L7 16H-7Z';
   const lab=n>1?`+${n-1}`:'',ini=(M.types[tr.ty]||{}).ini||'';
-  return `<g data-ids="${g.trs.map(t=>t.id)}" transform="translate(${g.x} ${g.y})" style="cursor:pointer"><rect x="-18" y="-28" width="36" height="${lab?64:56}" fill="transparent"/>${sel?`<rect x="-16" y="-15" width="32" height="30" rx="10" fill="none" stroke="${c}" stroke-width="2.5"/>`:''}<rect x="-12" y="-13" width="24" height="26" rx="8" fill="${c}"/><text y="5.5" text-anchor="middle" font-size="15" font-weight="700" fill="${ink(c)}">${ini}</text><path d="${tri}" fill="${c}"/>${lab?`<text y="${up?31:42}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">${lab}</text>`:''}</g>`;
+  return `<g data-ids="${g.trs.map(t=>t.id)}" transform="translate(${g.x} ${g.y})" style="cursor:pointer"><rect x="-18" y="-28" width="36" height="${lab?64:56}" fill="transparent"/>${sel?`<rect x="-15" y="-18" width="30" height="36" rx="11" fill="none" stroke="${c}" stroke-width="2.5"/>`:''}${shapeSvg(shape,c,ink(c),ini)}<path d="${tri}" fill="${c}"/>${lab?`<text y="${up?31:42}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">${lab}</text>`:''}</g>`;
 }
 function draw(){
   if(!M)return;
   const cnt=M.types.map(()=>0),stopped=new Map(),moving=[],items=[],slots=new Map();
   for(const tr of cur){const w=where(tr,T);if(!w)continue;cnt[tr.ty]=(cnt[tr.ty]||0)+1;if(hidden.has(tr.ty))continue;
     const side=tr.dir?-1:1;items.push({tr,w,side});
-    if(w.sp){const k=w.sp.x+'_'+w.sp.y+'_'+side;let e=slots.get(k);if(!e)slots.set(k,e={st:new Set(),mv:new Set()});(w.at!=null?e.st:e.mv).add(+w.stk||0)}}
-  // 駅ごとに、停車中の番線を優先して並べる。1つの番線しか使われていなければ、まっすぐのまま
+    if(w.sp){const k=w.sp.x+'_'+w.sp.y+'_'+side;if(!slots.has(k))slots.set(k,[]);slots.get(k).push([w.ta,tr.id])}}
+  // 駅ごとに、先に着いていた列車ほど線の近く、あとから来た列車ほど外側に入る(番線が決まっていても同じ)。1本だけならまっすぐのまま
   const order=new Map();
-  for(const [k,e] of slots){const a=[...e.st].sort((p,q)=>p-q);[...e.mv].sort((p,q)=>p-q).forEach(t=>{if(!a.includes(t))a.push(t)});order.set(k,a)}
+  for(const [k,a] of slots)order.set(k,a.sort((p,q)=>p[0]-q[0]||p[1]-q[1]).map(z=>z[1]));
   for(const {tr,w,side} of items){
-    const lst=w.sp?order.get(w.sp.x+'_'+w.sp.y+'_'+side):null,ox=lst?26+34*lst.indexOf(+w.stk||0):26,x=w.p.x+side*ox,y=w.p.y;
+    const lst=w.sp?order.get(w.sp.x+'_'+w.sp.y+'_'+side):null,ox=lst?26+34*lst.indexOf(tr.id):26,x=w.p.x+side*ox,y=w.p.y;
     if(w.at!=null){const k=x+'_'+y;if(!stopped.has(k))stopped.set(k,{trs:[],x,y,side});stopped.get(k).trs.push(tr)}
     else moving.push({tr,x,y,side})}
   const groups=[...stopped.values()];
@@ -263,15 +277,15 @@ function closeSheet(){sh=null;selIds=new Set();$('#sheet').classList.add('hide')
 function renderSheet(){
   if(sh.type==='set'){renderSet();return}
   if(sh.type==='tr'){
-    const trs=sh.ids.map(i=>cur[i]),tr=trs[sh.act],R=tr.route,ty=M.types[tr.ty]||{name:'',col:'var(--ink)'},a=R[tr.si[0]],b=R[tr.si[tr.si.length-1]];
-    const rows=[];tr.si.forEach((i,k)=>{const x=R[i],l=rows[rows.length-1];if(l&&pk(l.s)===pk(x.s)){l.d=x.d;l.b=k}else rows.push({s:x.s,a:x.a,d:x.d,ka:k,b:k})});
+    const trs=sh.ids.map(i=>cur[i]),tr=trs[sh.act],R=tr.route,ty=M.types[tr.ty]||{name:'',col:'var(--ink)'},a=R[tr.fs],b=R[tr.ls];
+    const rows=[];tr.si.forEach((i,k)=>{const x=R[i],l=rows[rows.length-1];if(l&&!l.ps&&!x.ps&&pk(l.s)===pk(x.s)){l.d=x.d;l.b=k}else rows.push({s:x.s,a:x.a,d:x.d,ps:x.ps,ka:k,b:k})});
     $('#sh').innerHTML=`<div><div><b style="color:${ty.col}">${esc(ty.name)}</b> ${esc(tr.name)} ${tr.dir?'上り':'下り'}</div><div class="mute">${S(a.s)} ${fmt(a.d)} → ${S(b.s)} ${fmt(b.a)}</div><div id="sst"></div>${trs.length>1?'<div class="tabs">'+trs.map((t,i)=>`<button data-act="${i}" ${i===sh.act?'style="border-color:var(--acc)"':''}>${esc((M.types[t.ty]||{}).name)} ${esc(t.name)||fmt(t.t0)}</button>`).join('')+'</div>':''}</div><button id="cls">閉じる</button>`;
-    $('#sb').innerHTML=`<table><tr><th>駅</th><th>着</th><th>発</th></tr>${rows.map((r,i)=>`<tr data-a="${r.ka}" data-b="${r.b}"><td>${S(r.s)}</td><td>${i?fmt(r.a):''}</td><td>${i<rows.length-1?fmt(r.d):''}</td></tr>`).join('')}</table>`;
+    $('#sb').innerHTML=`<table><tr><th>駅</th><th>着</th><th>発</th></tr>${rows.map((r,i)=>r.ps?`<tr data-a="${r.ka}" data-b="${r.b}"><td class="mute">${S(r.s)}</td><td class="mute" colspan="2">通過 ${fmt(r.a)}</td></tr>`:`<tr data-a="${r.ka}" data-b="${r.b}"><td>${S(r.s)}</td><td>${i?fmt(r.a):''}</td><td>${i<rows.length-1?fmt(r.d):''}</td></tr>`).join('')}</table>`;
     markRows();
   }else{
     const i=sh.i,key=pk(i),L=[];
-    for(const tr of cur){if(hideTT.has(tr.ty)||tr.dir!==ttDir)continue;const R=tr.route,ks=tr.si.filter(j=>pk(R[j].s)===key);if(!ks.length)continue;const last=ks[ks.length-1]===tr.si[tr.si.length-1];
-      L.push({t:last?R[ks[0]].a:R[ks[ks.length-1]].d,tr,last,dest:M.st[R[tr.si[tr.si.length-1]].s].name})}
+    for(const tr of cur){if(hideTT.has(tr.ty)||tr.dir!==ttDir)continue;const R=tr.route,ks=tr.si.filter(j=>!R[j].ps&&pk(R[j].s)===key);if(!ks.length)continue;const last=ks[ks.length-1]===tr.ls;
+      L.push({t:last?R[ks[0]].a:R[ks[ks.length-1]].d,tr,last,dest:M.st[R[tr.ls].s].name})}
     L.sort((p,q)=>p.t-q.t);const hrs=[...new Set(L.map(x=>Math.floor(x.t/3600)))];
     const tset=[...(stops().get(key)||[])].filter(t=>!hideTT.has(t)).sort((a,b)=>a-b);
     $('#sh').innerHTML=`<div style="flex:1;min-width:0"><b style="font-size:18px">${S(i)}</b><div class="mute">${tset.length?'停車: '+tset.map(t=>{const ty=M.types[t]||{name:'',col:'var(--ink)'};return `<b style="color:${ty.col}">${esc(ty.name)}</b>`}).join(' '):'停車する列車なし'}</div><div class="seg" id="dirs" style="margin-top:8px;max-width:240px"><button data-dir="0" class="${ttDir?'':'on'}">下り</button><button data-dir="1" class="${ttDir?'on':''}">上り</button></div></div><button id="cls">閉じる</button>`;
@@ -296,10 +310,11 @@ function renderSet(){
   $('#sh').innerHTML='<div><b style="font-size:17px">設定</b></div><button id="cls">閉じる</button>';
   const ty=M?M.types:[];
   $('#sb').innerHTML=`<h3>路線の色</h3><div class="row" id="lcs">${['',...LCS].map(c=>`<button class="sw${c===lcCur?' on':''}" data-c="${c}" style="background:${c||'conic-gradient(#5a9e35 50%,#78b552 0)'}" aria-label="${c||'標準'}"></button>`).join('')}<input type="color" id="lcc" value="${/^#[0-9a-f]{6}$/i.test(lcCur)?lcCur:'#5a9e35'}" aria-label="好きな色"></div>
+  <h3>列車の形</h3><div class="seg" id="shp" role="group" aria-label="列車の形">${SHAPES.map(([k,n])=>`<button data-shape="${k}" class="${k===shape?'on':''}"><svg viewBox="-15 -19 30 38">${shapeSvg(k,'currentColor','var(--accf)','')}</svg>${n}</button>`).join('')}</div>
   <h3>種別(凡例)</h3>`+(ty.length?`<table><tr><th>種別</th><th>在線</th><th>時刻表</th></tr>${ty.map((t,i)=>`<tr><td><span class="ic" style="background:${t.col};color:${ink(t.col)}">${esc(t.ini)}</span> ${esc(t.name)}</td><td><input type="checkbox" data-k="map" data-t="${i}" aria-label="${esc(t.name)}を在線に表示" ${hidden.has(i)?'':'checked'}></td><td><input type="checkbox" data-k="tt" data-t="${i}" aria-label="${esc(t.name)}を時刻表に表示" ${hideTT.has(i)?'':'checked'}></td></tr>`).join('')}</table><div class="mute" style="margin-top:8px;font-size:12px">在線: 路線図の列車と、駅名の下の停車種別 / 時刻表: 駅をタップしたときの時刻表</div>`:'<div class="mute">ファイルを読み込むと種別が表示されます</div>');
 }
 $('#gear').onclick=()=>openSheet({type:'set'});
-$('#sheet').addEventListener('click',e=>{const b=e.target.closest('.sw');if(b&&sh&&sh.type==='set'){setLc(b.dataset.c);document.querySelectorAll('#sb .sw').forEach(x=>x.classList.toggle('on',x===b))}});
+$('#sheet').addEventListener('click',e=>{const sp=e.target.closest('[data-shape]');if(sp&&sh&&sh.type==='set'){shape=sp.dataset.shape;try{localStorage.setItem('shape',shape)}catch(e){}document.querySelectorAll('#sb [data-shape]').forEach(x=>x.classList.toggle('on',x===sp));lastHtml=null;draw()}const b=e.target.closest('.sw');if(b&&sh&&sh.type==='set'){setLc(b.dataset.c);document.querySelectorAll('#sb .sw').forEach(x=>x.classList.toggle('on',x===b))}});
 $('#sheet').addEventListener('input',e=>{if(e.target.id==='lcc'){setLc(e.target.value);document.querySelectorAll('#sb .sw').forEach(x=>x.classList.remove('on'))}});
 $('#sheet').addEventListener('change',e=>{const c=e.target.closest('[data-k]');if(!c)return;const t=+c.dataset.t,set=c.dataset.k==='map'?hidden:hideTT;c.checked?set.delete(t):set.add(t);if(c.dataset.k==='map'){drawStops();lastHtml=null;draw()}});
 $('#thm').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('thm',r.dataset.theme)}catch(e){}};
@@ -319,11 +334,13 @@ addEventListener('dragover',e=>{e.preventDefault();$('#drop').classList.add('ove
 addEventListener('dragleave',()=>$('#drop').classList.remove('over'));
 addEventListener('drop',e=>{e.preventDefault();$('#drop').classList.remove('over');e.dataTransfer.files[0]&&loadFile(e.dataTransfer.files[0])});
 $('#dia').onchange=e=>useDia(+e.target.value);
-$('#play').onclick=()=>{playing=!playing;$('#play').textContent=playing?'⏸':'▶'};
+const ICON_PAUSE='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M7 4h3.5v16H7zM13.5 4H17v16h-3.5z" fill="currentColor"/></svg>',ICON_PLAY='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></svg>';
+function setPlay(on){playing=on;$('#play').innerHTML=on?ICON_PAUSE:ICON_PLAY}
+$('#play').onclick=()=>setPlay(!playing);
 $('#tin').onchange=e=>{const m=e.target.value.match(/^(\d+):(\d+)(?::(\d+))?$/);if(!m||!M)return;let t=+m[1]*3600+ +m[2]*60+(+m[3]||0);if(t<M.lo&&t+86400<=M.hi)t+=86400;T=Math.min(Math.max(t,M.lo),M.hi);e.target.blur();draw()};
 function setSpeed(v){speed=v;document.querySelectorAll('#spd button').forEach(b=>b.classList.toggle('on',+b.dataset.v===v))}
 $('#spd').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b)setSpeed(+b.dataset.v)});
-$('#now').onclick=()=>{const n=new Date();T=n.getHours()*3600+n.getMinutes()*60+n.getSeconds();setSpeed(1);playing=true;$('#play').textContent='⏸';if(M&&(T<M.lo||T>M.hi))T=M.lo;draw()};
+$('#now').onclick=()=>{const n=new Date();T=n.getHours()*3600+n.getMinutes()*60+n.getSeconds();setSpeed(1);setPlay(true);if(M&&(T<M.lo||T>M.hi))T=M.lo;draw()};
 let pd=null;
 $('#map').addEventListener('pointerdown',e=>{pd={x:e.clientX,y:e.clientY}});
 $('#map').addEventListener('pointerup',e=>{if(!pd)return;const mv=Math.hypot(e.clientX-pd.x,e.clientY-pd.y);pd=null;if(mv>10)return;
